@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CVision AI – Phân tích CV bằng AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>window.react=window.React</script>
+<script src="https://cdn.jsdelivr.net/npm/lucide-react@0.383.0/dist/umd/lucide-react.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<style>
+:root{--bg:#fff;--soft:#eff6ff;--card:#fff;--fg:#0f1b33;--mut:#55647f;--line:#d9e5f7;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0a1424;--soft:#0f1d36;--card:#101f3a;--fg:#e7eefc;--mut:#9db0cf;--line:#22375c}}
+:root[data-theme=dark]{--bg:#0a1424;--soft:#0f1d36;--card:#101f3a;--fg:#e7eefc;--mut:#9db0cf;--line:#22375c}
+html{scroll-behavior:smooth;scroll-padding-top:calc(84px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif}
+.mut{color:var(--mut)}.card{background:var(--card);border:1px solid var(--line)}.soft{background:var(--soft)}
+.gt{background:linear-gradient(90deg,#2563eb,#06b6d4,#2563eb);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sh 4s linear infinite}
+@keyframes sh{to{background-position:200% 0}}
+mark.hk{background:linear-gradient(transparent 58%,rgba(59,130,246,.3) 0);color:inherit;font-weight:600}
+.hdr{background:color-mix(in srgb,var(--bg) 85%,transparent)}
+.nl{position:relative;transition:color .2s}.nl:hover{color:#2563eb}
+.nl:after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:0;background:#2563eb;transition:width .3s}.nl:hover:after{width:100%}
+.up{background:var(--soft);transition:all .3s ease}
+.up:hover{background:color-mix(in srgb,#2563eb 9%,var(--soft));border-color:#1d4ed8;transform:translateY(-3px);box-shadow:0 24px 60px -24px rgba(37,99,235,.55)}
+.up:hover .ico{animation:bob .9s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.hl{animation:ring 1s ease-out 2}
+@keyframes ring{from{box-shadow:0 0 0 0 rgba(37,99,235,.55)}to{box-shadow:0 0 0 30px rgba(37,99,235,0)}}
+.fu{animation:fu .6s ease both}
+@keyframes fu{from{opacity:0;transform:translateY(18px)}}
+.bar{animation:bar 3s linear forwards}
+@keyframes bar{from{width:0}to{width:100%}}
+.acc{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
+.acc.open{grid-template-rows:1fr}.acc>div{overflow:hidden}
+.fo{animation:fo .3s ease both}@keyframes fo{from{opacity:0}}
+.fi{animation:fi .35s ease both}@keyframes fi{from{opacity:0;transform:translateY(6px)}}
+.chip{position:relative;animation:gl 1.4s ease-in-out infinite}
+@keyframes gl{0%,100%{filter:drop-shadow(0 0 8px rgba(34,211,238,.6))}50%{filter:drop-shadow(0 0 26px rgba(34,211,238,1))}}
+.pr{position:absolute;inset:-12px;border-radius:32px;border:2px solid #22d3ee;animation:pr 1.6s ease-out infinite}
+@keyframes pr{from{opacity:.8;transform:scale(.9)}to{opacity:0;transform:scale(1.5)}}
+.wv{width:4px;height:26px;border-radius:4px;background:linear-gradient(#22d3ee,#3b82f6);animation:wv 1s ease-in-out infinite}
+@keyframes wv{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const {useState,useEffect,useRef}=React;
+const html=htm.bind(React.createElement);
+const LR=window.lucideReact||window.LucideReact||window['lucide-react']||{};
+const Ic=({n,...p})=>{const C=LR[n];return C?html`<${C} ...${p}/>`:null};
+const Hk=({t})=>t.split('*').map((s,i)=>i%2?html`<mark key=${i} className="hk">${s}</mark>`:s);
+
+const NAV=[['Về chúng tôi','about'],['Lý do chọn AI','why'],['Đánh giá','reviews'],['FAQ','faq']];
+const STATS=[['5,000+','Sinh viên tin dùng'],['12,450+','CV được tối ưu'],['98%','Hài lòng']];
+const FEAT=[
+['Gauge','Chấm điểm ATS','Nhận *điểm số 0–100* theo từng tiêu chí: từ khóa, bố cục, kỹ năng — đúng cách hệ thống *ATS* đọc CV của bạn.'],
+['AlertTriangle','Chỉ ra điểm yếu','AI khoanh vùng *lỗi định dạng*, thiếu số liệu và *kỹ năng chưa khớp JD*, kèm gợi ý sửa cụ thể.'],
+['Mic','Luyện phỏng vấn Mock Interview','Luyện trả lời *câu hỏi phỏng vấn* sát với CV và vị trí ứng tuyển, nhận phản hồi ngay.',1]];
+const REV=[
+['Nguyễn Minh Anh','Sinh viên năm cuối ngành Marketing','Nhờ web sửa CV mà mình đã pass vòng hồ sơ của tập đoàn lớn. Trước đó mình gửi cả chục CV mà không ai phản hồi.'],
+['Trần Quang Huy','Sinh viên năm 3 ngành CNTT','App chỉ ra đúng chỗ mình thiếu: dự án chưa có link GitHub và số liệu hiệu năng. Sửa xong là được gọi phỏng vấn thực tập liền.'],
+['Lê Thu Hà','Fresher Kế toán','Mình không biết ATS là gì cho tới khi dùng CVision AI. Điểm số kèm giải thích dễ hiểu, sửa từng mục một rất đỡ rối.'],
+['Phạm Đức Long','Sinh viên năm cuối ngành Kinh doanh quốc tế','Phần nhận xét đọc như một anh chị HR góp ý trực tiếp, chứ không phải danh sách lỗi khô khan.'],
+['Vũ Ngọc Diệp','Fresher Data Analyst','Chưa đầy một phút đã có phản hồi chi tiết. Mình bổ sung số liệu theo gợi ý và nhận được lịch phỏng vấn ngay tuần sau.'],
+['Đặng Hoàng Nam','Sinh viên mới tốt nghiệp ngành Thiết kế','Đổi sang bố cục một cột theo gợi ý, CV vừa gọn vừa được hệ thống đọc chuẩn hơn hẳn.']];
+const FAQ=[
+['ATS là gì và vì sao CV của tôi cần quan tâm?','ATS (Applicant Tracking System) là phần mềm quản lý tuyển dụng mà nhiều công ty dùng để tự động đọc, lọc và xếp hạng CV trước khi nhà tuyển dụng xem. Nếu CV sai định dạng hoặc thiếu từ khóa phù hợp với vị trí, hồ sơ có thể bị loại ngay từ vòng đầu dù bạn hoàn toàn đủ năng lực.'],
+['File của tôi có được bảo mật không?','Có. CV chỉ được dùng để phân tích, không chia sẻ cho bên thứ ba, và bạn có thể yêu cầu xóa file bất cứ lúc nào.'],
+['Hệ thống phân tích mất bao lâu?','Thường chỉ vài giây đến dưới một phút, tùy dung lượng và định dạng file.'],
+['Tôi nên tải lên định dạng nào?','Hỗ trợ HTML, TXT, PDF, DOCX, HWP, HWPX (tối đa 10 MB). Nên dùng bản CV bạn đang gửi đi ứng tuyển.'],
+['Điểm số của tôi được tính như thế nào?','Điểm được tổng hợp từ nhiều tiêu chí: mức độ khớp từ khóa, cấu trúc và định dạng, tính lượng hóa của thành tích và độ rõ ràng của nội dung.'],
+['Phân tích CV có miễn phí không?','Bạn được chấm điểm và nhận nhận xét tổng quan miễn phí. Gói Premium mở khóa báo cáo chi tiết, đối chiếu với Job Description cụ thể và Mock Interview.'],
+['Mock Interview hoạt động như thế nào?','AI đặt câu hỏi phỏng vấn dựa trên CV và vị trí bạn ứng tuyển, sau đó nhận xét câu trả lời của bạn. Tính năng này thuộc gói Premium và cần đăng nhập.'],
+['CV tiếng Anh có phân tích được không?','Được. Hệ thống hỗ trợ cả CV tiếng Việt và tiếng Anh, bạn có thể dùng bản phù hợp với vị trí ứng tuyển.']];
+const PERKS=['Báo cáo chi tiết từng mục: kỹ năng, kinh nghiệm, học vấn','Đối chiếu CV với Job Description cụ thể','AI gợi ý viết lại từng dòng trong CV','Mock Interview không giới hạn, có chấm điểm câu trả lời','Xuất báo cáo PDF để lưu và chia sẻ'];
+const PRO=[
+{name:'Hoàng Minh Khang',role:'Marketing Executive',tags:['Digital Marketing','SEO','Google Ads','Content'],
+sum:'Chào Khang, nhìn chung cấu trúc CV của bạn khá gọn gàng và hiện đại. Phần kinh nghiệm thể hiện tốt khả năng triển khai các chiến dịch *Digital Marketing*. Tuy nhiên, hệ thống nhận thấy bạn đang thiếu các chỉ số đo lường hiệu quả thực tế (như *tỷ lệ chuyển đổi, CPA, ROI*). Lời khuyên là hãy *lượng hóa* các kết quả này để tăng độ tin cậy với nhà tuyển dụng.',
+acts:['Bổ sung CPA, tỷ lệ chuyển đổi và ROI cho từng chiến dịch.','Lượng hóa kết quả ngay trong phần mô tả kinh nghiệm.','Giữ bố cục gọn gàng, đưa chiến dịch nổi bật nhất lên đầu.']},
+{name:'Lê Hải Yến',role:'Backend Developer',tags:['Python','Node.js','REST API','PostgreSQL'],
+sum:'CV của Yến làm nổi bật được tư duy logic và kỹ năng thực chiến với *Python, Node.js*. Dù vậy, phần mô tả dự án cá nhân vẫn còn khá mỏng. Hệ thống đề xuất bạn nên làm rõ cấu trúc *Database* đã sử dụng, bổ sung link *GitHub repository*, và thêm số liệu cụ thể về khả năng chịu tải (*performance*) của các API bạn từng viết.',
+acts:['Làm rõ cấu trúc Database đã sử dụng trong từng dự án.','Bổ sung link GitHub repository cho dự án cá nhân.','Thêm số liệu chịu tải (performance) của các API đã viết.']},
+{name:'Phạm Quốc Bảo',role:'Sales Management',tags:['B2B Sales','Đàm phán','CRM','Key Account'],
+sum:'Kinh nghiệm trong ngành *B2B Sales* của Bảo là một điểm cộng rất lớn, đặc biệt ở kỹ năng đàm phán. Nhưng hiện tại, hệ thống *ATS* gặp khó khăn khi quét CV của bạn do format đang chia quá nhiều cột và vướng vài lỗi chính tả. AI khuyên bạn nên đổi sang một Template cấu trúc *1 cột* đơn giản, đồng thời tập trung làm nổi bật tỷ lệ đạt chỉ tiêu doanh số (*Quota Achievement*).',
+acts:['Chuyển sang template 1 cột đơn giản để ATS quét chính xác.','Rà soát và sửa các lỗi chính tả trong CV.','Làm nổi bật tỷ lệ đạt chỉ tiêu doanh số (Quota Achievement).']}];
+const MSGS=['Đang quét cấu trúc file...','Đang trích xuất từ khóa chuyên môn...','Đang đối chiếu với Job Description...','Đang tổng hợp báo cáo đánh giá...'];
+const Loader=({msg})=>html`<div className="fo fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 text-center backdrop-blur-md" style=${{background:'rgba(8,16,32,.78)'}}>
+  <div className="relative"><span className="pr"></span><span className="pr" style=${{animationDelay:'.8s'}}></span>
+    <div className="chip w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center"><${Ic} n="Cpu" size=${48} strokeWidth=${1.5}/></div></div>
+  <div className="mt-8 flex items-center gap-1.5 h-7">${[0,1,2,3,4,5,6].map(i=>html`<span key=${i} className="wv" style=${{animationDelay:(i*.12)+'s'}}></span>`)}</div>
+  <p key=${msg} className="fi mt-6 text-lg md:text-xl font-semibold text-white">${MSGS[msg]}</p>
+  <div className="mt-6 w-56 h-1.5 rounded-full overflow-hidden bg-white/15"><div className="bar h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-400"></div></div>
+  <div className="fu mt-8 w-full max-w-sm text-left rounded-2xl p-4 border border-amber-300/40 bg-white/10 text-white" style=${{animationDelay:'.5s'}}>
+    <div className="flex items-center gap-2 text-sm font-bold text-amber-300"><${Ic} n="Crown" size=${16}/>Bạn đang dùng bản phân tích miễn phí</div>
+    <p className="mt-1 text-xs text-blue-100">Nâng cấp Premium để nhận:</p>
+    <ul className="mt-2 space-y-1.5 text-xs">${PERKS.slice(0,4).map(x=>html`<li key=${x} className="flex items-start gap-2"><${Ic} n="Check" size=${14} className="mt-0.5 shrink-0 text-cyan-300"/>${x}</li>`)}</ul>
+  </div>
+</div>`;
+const fmt=b=>b>=1048576?(b/1048576).toFixed(2)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+const lab=s=>s>=80?'Rất tốt – gần sẵn sàng ứng tuyển':s>=68?'Khá tốt – còn vài điểm cần cải thiện':'Cần cải thiện để vượt vòng ATS';
+
+try{const t=localStorage.getItem('cv-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}
+const ThemeBtn=()=>{
+  const cur=()=>document.documentElement.dataset.theme||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+  const [t,setT]=useState(cur);
+  const flip=()=>{const n=t==='dark'?'light':'dark';document.documentElement.dataset.theme=n;setT(n);try{localStorage.setItem('cv-theme',n)}catch(e){}};
+  return html`<button onClick=${flip} aria-label="Đổi giao diện sáng/tối" title="Đổi giao diện sáng/tối" className="card w-10 h-10 shrink-0 rounded-full grid place-items-center transition duration-300 hover:scale-110 hover:text-blue-600 hover:border-blue-500"><${Ic} n=${t==='dark'?'Sun':'Moon'} size=${18}/></button>`;
+};
+const Logo=()=>html`<a href="#" className="flex items-center gap-2 font-extrabold text-xl"><span className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center"><${Ic} n="Sparkles" size=${20}/></span>CVision<span className="gt">AI</span></a>`;
+
+const Faq=({q,a})=>{
+  const [o,setO]=useState(false);
+  return html`<div className="card rounded-2xl overflow-hidden transition-shadow duration-300 hover:shadow-lg">
+    <button onClick=${()=>setO(!o)} className="w-full flex items-center justify-between gap-4 p-5 text-left font-semibold">
+      <span>${q}</span>
+      <${Ic} n="ChevronDown" className=${'shrink-0 transition-transform duration-300 '+(o?'rotate-180 text-blue-600':'')}/>
+    </button>
+    <div className=${'acc '+(o?'open':'')}><div><p className="px-5 pb-5 mut leading-relaxed">${a}</p></div></div>
+  </div>`;
+};
+
+const Ring=({s})=>{
+  const [v,setV]=useState(0);
+  useEffect(()=>{
+    let r,t0;
+    const f=t=>{t0=t0||t;const k=Math.min((t-t0)/1800,1);setV(Math.round(s*(1-Math.pow(1-k,3))));if(k<1)r=requestAnimationFrame(f)};
+    r=requestAnimationFrame(f);
+    return()=>cancelAnimationFrame(r);
+  },[s]);
+  const C=2*Math.PI*54;
+  return html`<div className="relative w-48 h-48 md:w-56 md:h-56 mx-auto">
+    <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
+      <defs><linearGradient id="rg" x1="0" x2="1"><stop offset="0" stopColor="#2563eb"/><stop offset="1" stopColor="#06b6d4"/></linearGradient></defs>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="var(--line)" strokeWidth="9"/>
+      <circle cx="60" cy="60" r="54" fill="none" stroke="url(#rg)" strokeWidth="9" strokeLinecap="round" strokeDasharray=${C} strokeDashoffset=${C*(1-v/100)}/>
+    </svg>
+    <div className="absolute inset-0 flex flex-col items-center justify-center"><span className="text-5xl md:text-6xl font-extrabold gt">${v}</span><span className="text-sm mut">/ 100 điểm ATS</span></div>
+  </div>`;
+};
+
+const Result=({file,res,onReset,onMock,toast})=>html`<${React.Fragment}>
+  <div className="min-h-screen fu">
+    <div className="hdr border-b" style=${{borderColor:'var(--line)'}}><div className="max-w-6xl mx-auto px-5 h-[72px] flex items-center justify-between"><${Logo}/><${ThemeBtn}/></div></div>
+    <main className="max-w-6xl mx-auto px-5 py-10">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center">Kết quả <span className="gt">phân tích CV</span></h1>
+      <div className="mt-10 grid md:grid-cols-2 gap-8">
+        <div className="card rounded-3xl p-6 md:p-8 flex flex-col items-center">
+          <div className="w-full max-w-[260px] aspect-[3/4] rounded-xl bg-white shadow-xl shadow-blue-900/10 border border-slate-200 p-5 flex flex-col gap-2 -rotate-2 transition duration-500 hover:rotate-0 hover:scale-105">
+            <div className="flex items-center gap-2"><div className="w-9 h-9 rounded-full bg-blue-100"></div><div className="flex-1 min-w-0"><p className="text-[11px] font-bold text-slate-800 truncate leading-tight">${res.p.name}</p><p className="text-[9px] font-semibold text-blue-600 truncate">${res.p.role}</p></div></div>
+            ${[100,90,95,60,100,85,70,92,55,88].map((w,i)=>html`<div key=${i} className=${'h-2 rounded '+(i%4===3?'bg-blue-200 mt-2':'bg-slate-200')} style=${{width:w+'%'}}></div>`)}
+          </div>
+          <div className="mt-6 w-full flex items-center gap-3 rounded-2xl soft p-4">
+            <span className="w-11 h-11 shrink-0 rounded-xl bg-blue-600 text-white grid place-items-center"><${Ic} n="FileText" size=${22}/></span>
+            <div className="min-w-0"><p className="font-semibold truncate" title=${file.name}>${file.name}</p><p className="text-sm mut">${fmt(file.size)} · Đã phân tích xong</p></div>
+          </div>
+          <div className="mt-4 w-full rounded-2xl soft p-4">
+            <div className="flex items-center gap-3">
+              <span className="w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-bold grid place-items-center">${res.p.name.split(' ').pop()[0]}</span>
+              <div className="min-w-0"><p className="font-bold truncate">${res.p.name}</p><p className="text-sm mut">${res.p.role}</p></div>
+            </div>
+            <p className="mt-4 text-xs font-semibold mut">Từ khóa chuyên môn đã trích xuất</p>
+            <div className="mt-2 flex flex-wrap gap-2">${res.p.tags.map(t=>html`<span key=${t} className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-600/10 text-blue-600">${t}</span>`)}</div>
+          </div>
+        </div>
+        <div className="card rounded-3xl p-6 md:p-8">
+          <${Ring} s=${res.sc}/>
+          <p className="mt-3 text-center font-bold text-blue-600">${lab(res.sc)}</p>
+          <div className="fu mt-8 rounded-2xl soft p-5 border-l-4 border-blue-600" style=${{animationDelay:'1.2s'}}>
+            <div className="flex items-center gap-2 font-bold"><span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center"><${Ic} n="MessageSquare" size=${16}/></span>Nhận xét từ chuyên gia AI</div>
+            <p className="mt-3 leading-relaxed"><${Hk} t=${res.p.sum}/></p>
+          </div>
+          <h3 className="mt-8 mb-3 text-lg font-bold flex items-center gap-2"><${Ic} n="Zap" size=${20} className="text-blue-600"/>Top 3 Hành động cần làm ngay</h3>
+          <ul className="space-y-2.5">
+            ${res.p.acts.map((a,i)=>html`<li key=${a} className="fu flex items-start gap-3" style=${{animationDelay:(1.6+i*.2)+'s'}}>
+              <span className="mt-0.5 shrink-0 w-6 h-6 rounded-full bg-blue-600/10 text-blue-600 grid place-items-center"><${Ic} n="Check" size=${14} strokeWidth=${3}/></span><span>${a}</span>
+            </li>`)}
+          </ul>
+        </div>
+      </div>
+      <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
+        <button onClick=${onMock} className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold px-8 py-4 shadow-xl shadow-blue-500/30 transition duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"><${Ic} n="Mic" size=${20}/>Bắt đầu Mock Interview<span className="ml-1 inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-400 text-slate-900"><${Ic} n="Crown" size=${12}/>PREMIUM</span></button>
+        <button onClick=${onReset} className="card inline-flex items-center justify-center gap-2 rounded-full font-semibold px-8 py-4 transition duration-300 hover:scale-105 hover:border-blue-500 hover:text-blue-600 active:scale-95"><${Ic} n="RotateCcw" size=${18}/>Phân tích CV khác</button>
+      </div>
+    </main>
+  </div>
+  ${toast&&html`<div className="fixed inset-x-0 z-50 flex justify-center pointer-events-none" style=${{bottom:'calc(24px + env(safe-area-inset-bottom,0px))'}}><div className="fu px-5 py-3 rounded-full bg-slate-900 text-white text-sm shadow-2xl">${toast}</div></div>`}
+<//>`;
+
+const Gate=({kind,mock,onClose,onLogin,onPro})=>{
+  const [em,setEm]=useState('');
+  const fld='mt-3 w-full rounded-xl px-4 py-3 outline-none border focus:border-blue-500 soft';
+  return html`<div className="fo fixed inset-0 z-[90] flex items-center justify-center p-5 backdrop-blur-sm" style=${{background:'rgba(8,16,32,.6)'}} onClick=${onClose}>
+    <div className="fu card w-full max-w-md rounded-3xl p-7 shadow-2xl relative" onClick=${e=>e.stopPropagation()}>
+      <button onClick=${onClose} className="absolute top-4 right-4 mut transition hover:text-blue-600"><${Ic} n="X" size=${20}/></button>
+      ${kind==='login'?html`<div>
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center"><${Ic} n="Lock" size=${22}/></div>
+        <h3 className="mt-4 text-2xl font-extrabold">Đăng nhập để tiếp tục</h3>
+        <p className="mt-2 text-sm mut">${mock?'Mock Interview thuộc gói Premium. Vui lòng đăng nhập để nâng cấp và luyện phỏng vấn cùng AI.':'Đăng nhập để lưu lịch sử phân tích CV và mở khóa thêm tính năng.'}</p>
+        <input value=${em} onChange=${e=>setEm(e.target.value)} placeholder="Email của bạn" className=${fld+' mt-5'} style=${{borderColor:'var(--line)',color:'var(--fg)'}}/>
+        <input type="password" placeholder="Mật khẩu" className=${fld} style=${{borderColor:'var(--line)',color:'var(--fg)'}}/>
+        <button onClick=${()=>onLogin((em.trim()[0]||'U').toUpperCase())} className="mt-5 w-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold py-3 transition duration-300 hover:scale-[1.02] active:scale-95">Đăng nhập</button>
+        <p className="mt-4 text-center text-sm mut">Chưa có tài khoản? <b className="text-blue-600">Đăng ký miễn phí</b></p>
+      </div>`:html`<div>
+        <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-900 grid place-items-center"><${Ic} n="Crown" size=${24}/></div>
+        <h3 className="mt-4 text-2xl font-extrabold">Mở khóa Mock Interview với Premium</h3>
+        <p className="mt-2 text-sm mut">Luyện phỏng vấn cùng AI và nhận báo cáo CV chi tiết hơn nhiều so với bản miễn phí.</p>
+        <ul className="mt-5 space-y-2.5 text-sm">${PERKS.map(x=>html`<li key=${x} className="flex items-start gap-2.5"><${Ic} n="CheckCircle2" size=${18} className="shrink-0 text-blue-600"/>${x}</li>`)}</ul>
+        <button onClick=${onPro} className="mt-6 w-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900 font-bold py-3 transition duration-300 hover:scale-[1.02] active:scale-95">Nâng cấp Premium</button>
+        <button onClick=${onClose} className="mt-2 w-full py-2 text-sm mut transition hover:text-blue-600">Để sau</button>
+      </div>`}
+    </div></div>`;
+};
+
+const App=()=>{
+  const [st,setSt]=useState('landing'),[file,setFile]=useState(null),[res,setRes]=useState(null),[msg,setMsg]=useState(0);
+  const [hl,setHl]=useState(false),[err,setErr]=useState(''),[toast,setToast]=useState(''),[modal,setModal]=useState(null),[menu,setMenu]=useState(false),[user,setUser]=useState('');
+  const inp=useRef();
+
+  const take=f=>{
+    if(!f)return;
+    if(!/\.(html?|txt|pdf|docx|hwpx?)$/i.test(f.name)||f.size>10*1024*1024){setErr('Vui lòng chọn file HTML, TXT, PDF, DOCX, HWP hoặc HWPX (tối đa 10 MB).');return}
+    setErr('');setFile(f);setSt('loading');setMsg(0);
+    [800,1600,2400].forEach((t,i)=>setTimeout(()=>setMsg(i+1),t));
+    setTimeout(()=>{
+      setRes({sc:55+Math.floor(Math.random()*34),p:PRO[Math.floor(Math.random()*PRO.length)]});
+      setSt('result');window.scrollTo({top:0,behavior:'instant'});
+    },3000);
+  };
+  const reset=()=>{setSt('landing');setFile(null);setRes(null);window.scrollTo({top:0,behavior:'instant'})};
+  const go=()=>{document.getElementById('upload').scrollIntoView({behavior:'smooth',block:'center'});setHl(true);setTimeout(()=>setHl(false),2200)};
+  const flash=t=>{setToast(t);setTimeout(()=>setToast(''),2600)};
+  const mock=()=>setModal(user?'premium':'login');
+  const login=i=>{setUser(i);setModal(st==='result'?'premium':null)};
+  const gate=modal&&html`<${Gate} kind=${modal} mock=${st==='result'} onClose=${()=>setModal(null)} onLogin=${login} onPro=${()=>{setModal(null);flash('Cảm ơn bạn! Thanh toán Premium sẽ có trong bản chính thức ✨')}}/>`;
+
+  if(st==='result')return html`<${React.Fragment}><${Result} file=${file} res=${res} onReset=${reset} onMock=${mock} toast=${toast}/>${gate}<//>`;
+
+  return html`<div>
+    <header className="hdr sticky z-50 backdrop-blur-md border-b" style=${{top:'env(safe-area-inset-top,0px)',borderColor:'var(--line)'}}>
+      <div className="max-w-6xl mx-auto px-5 h-[72px] flex items-center justify-between gap-4">
+        <${Logo}/>
+        <nav className="hidden md:flex gap-8 text-sm font-medium">${NAV.map(([t,id])=>html`<a key=${id} href=${'#'+id} className="nl">${t}</a>`)}</nav>
+        <div className="flex items-center gap-3"><div className="hidden md:flex items-center gap-5">
+          ${user?html`<span className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white text-sm font-bold grid place-items-center">${user}</span>`:html`<button onClick=${()=>setModal('login')} className="text-sm font-semibold transition hover:text-blue-600">Đăng nhập</button>`}
+          <button onClick=${go} className="rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-sm font-bold px-5 py-2.5 shadow-lg shadow-blue-500/30 transition duration-300 hover:scale-105 hover:shadow-xl active:scale-95">Phân tích CV ngay</button></div><${ThemeBtn}/>
+        <button onClick=${()=>setMenu(!menu)} className="md:hidden p-2 -mr-2" aria-label="Menu"><${Ic} n=${menu?'X':'Menu'} size=${26}/></button></div>
+      </div>
+      ${menu&&html`<div className="md:hidden fo border-t px-5 pb-5 pt-2" style=${{borderColor:'var(--line)'}}>
+        ${NAV.map(([t,id])=>html`<a key=${id} href=${'#'+id} onClick=${()=>setMenu(false)} className="block py-3 font-medium border-b" style=${{borderColor:'var(--line)'}}>${t}</a>`)}
+        <div className="mt-4 flex flex-col gap-3">
+          ${user?null:html`<button onClick=${()=>{setMenu(false);setModal('login')}} className="card rounded-full py-3 font-semibold">Đăng nhập</button>`}
+          <button onClick=${()=>{setMenu(false);go()}} className="rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold py-3 shadow-lg shadow-blue-500/30 active:scale-95">Phân tích CV ngay</button>
+        </div>
+      </div>`}
+    </header>
+
+    <section className="relative overflow-hidden">
+      <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[720px] max-w-full h-[420px] rounded-full bg-blue-500/20 blur-3xl pointer-events-none"></div>
+      <div className="relative max-w-4xl mx-auto px-5 pt-16 pb-20 text-center">
+        <span className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full soft text-blue-600 border" style=${{borderColor:'var(--line)'}}><${Ic} n="Sparkles" size=${14}/>Trợ lý AI chấm điểm CV miễn phí</span>
+        <h1 className="mt-6 text-4xl md:text-6xl font-extrabold leading-[1.15] tracking-tight">Để <span className="gt">AI</span> giúp CV của bạn <span className="gt">vượt qua vòng lọc hồ sơ</span></h1>
+        <p className="mt-5 text-lg mut max-w-2xl mx-auto"><${Hk} t="*ATS* là phần mềm nhà tuyển dụng dùng để tự động lọc CV. Tải CV lên để nhận *điểm số*, biết *điểm yếu cần sửa* và luyện *phỏng vấn* — chỉ trong vài giây."/></p>
+
+        <input ref=${inp} type="file" hidden accept=".html,.htm,.txt,.pdf,.docx,.hwp,.hwpx" onChange=${e=>{const f=e.target.files[0];e.target.value='';take(f)}}/>
+        <div id="upload" role="button" tabIndex=${0}
+          onClick=${()=>inp.current.click()} onKeyDown=${e=>e.key==='Enter'&&inp.current.click()}
+          onDragOver=${e=>e.preventDefault()} onDrop=${e=>{e.preventDefault();take(e.dataTransfer.files[0])}}
+          className=${'up mt-10 mx-auto max-w-2xl min-h-[340px] flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-blue-500 px-6 py-10 cursor-pointer select-none '+(hl?'hl ':'')+(st==='loading'?'pointer-events-none':'')}>
+          ${html`<div>
+            <div className="ico mx-auto w-24 h-24 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center shadow-xl shadow-blue-500/30"><${Ic} n="UploadCloud" size=${52} strokeWidth=${1.6}/></div>
+            <p className="mt-6 text-xl md:text-2xl font-bold">Drop your resume here, or <span className="gt">click to browse files</span></p>
+            <p className="mt-2 text-sm mut">Up to 10 MB in HTML, TXT, PDF, DOCX, HWP, HWPX</p>
+          </div>`}
+        </div>
+        ${err&&html`<p className="mt-4 text-sm text-red-500 fu">${err}</p>`}
+      </div>
+    </section>
+
+    <section id="about" className="bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-600 text-white">
+      <div className="max-w-6xl mx-auto px-5 py-12 text-center">
+        <h2 className="text-3xl md:text-4xl font-extrabold">Về chúng tôi</h2>
+        <p className="mt-4 max-w-3xl mx-auto text-blue-50 leading-relaxed text-lg">CVision AI ra đời từ một trăn trở quen thuộc của sinh viên: gửi hàng chục CV nhưng không nhận được phản hồi nào, vì hồ sơ đã bị hệ thống lọc tự động (ATS) loại trước khi đến tay nhà tuyển dụng. Chúng tôi xây dựng một trợ lý AI đọc CV giống cách ATS đọc, để chấm điểm, chỉ ra điểm yếu và gợi ý chỉnh sửa cụ thể bằng tiếng Việt dễ hiểu, kèm phòng luyện phỏng vấn Mock Interview. Mục tiêu của chúng tôi là giúp mỗi bạn trẻ tự tin hơn ở bước đầu tiên trên hành trình tìm việc.</p>
+        <div className="mt-8 grid sm:grid-cols-3 gap-8 sm:divide-x divide-white/25">
+          ${STATS.map(([n,l])=>html`<div key=${l}><div className="text-4xl md:text-5xl font-extrabold">${n}</div><div className="mt-1 text-blue-100">${l}</div></div>`)}
+        </div>
+      </div>
+    </section>
+
+    <section id="why" className="max-w-6xl mx-auto px-5 py-20">
+      <h2 className="text-3xl md:text-4xl font-extrabold text-center">Lý do chọn <span className="gt">AI</span> của chúng tôi</h2>
+      <p className="mt-3 text-center mut">Mọi thứ bạn cần để hồ sơ nổi bật trước nhà tuyển dụng.</p>
+      <div className="mt-12 grid md:grid-cols-3 gap-6">
+        ${FEAT.map(([ic,t,d,pro])=>html`<div key=${t} className="card group rounded-3xl p-7 transition duration-300 hover:-translate-y-2 hover:shadow-2xl hover:border-blue-400">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center transition duration-300 group-hover:scale-110 group-hover:rotate-3"><${Ic} n=${ic} size=${28}/></div>
+          <h3 className="mt-5 text-xl font-bold">${t}${pro&&html`<span className="ml-2 align-middle text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-400 text-slate-900">PREMIUM</span>`}</h3>
+          <p className="mt-2 mut leading-relaxed"><${Hk} t=${d}/></p>
+        </div>`)}
+      </div>
+    </section>
+
+    <section id="reviews" className="soft py-20">
+      <div className="max-w-6xl mx-auto px-5">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-center">Sinh viên nói gì về <span className="gt">CVision AI</span></h2>
+        <div className="mt-12 grid md:grid-cols-3 gap-6">
+          ${REV.map(([n,r,q])=>html`<figure key=${n} className="card rounded-3xl p-7 flex flex-col transition duration-300 hover:-translate-y-2 hover:shadow-2xl">
+            <div className="flex gap-1">${[0,1,2,3,4].map(i=>html`<${Ic} key=${i} n="Star" size=${18} fill="#fbbf24" color="#fbbf24"/>`)}</div>
+            <blockquote className="mt-4 flex-1 leading-relaxed">“${q}”</blockquote>
+            <figcaption className="mt-6 flex items-center gap-3">
+              <span className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-bold grid place-items-center">${n[0]}</span>
+              <span><b className="block">${n}</b><span className="text-sm mut">${r}</span></span>
+            </figcaption>
+          </figure>`)}
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" className="max-w-3xl mx-auto px-5 py-20">
+      <h2 className="text-3xl md:text-4xl font-extrabold text-center">Câu hỏi thường gặp</h2>
+      <div className="mt-10 space-y-4">${FAQ.map(([q,a])=>html`<${Faq} key=${q} q=${q} a=${a}/>`)}</div>
+    </section>
+
+    <footer className="soft border-t" style=${{borderColor:'var(--line)'}}>
+      <div className="max-w-6xl mx-auto px-5 py-10 grid md:grid-cols-3 gap-8 text-sm">
+        <div><${Logo}/><p className="mt-3 mut">Nền tảng AI phân tích và tối ưu CV theo chuẩn ATS.</p></div>
+        <div><b>Liên hệ</b>
+          <p className="mt-2 mut flex items-center gap-2"><${Ic} n="Mail" size=${16}/>hello@cvision.ai</p>
+          <p className="mt-1 mut flex items-center gap-2"><${Ic} n="Phone" size=${16}/>1900 0000</p></div>
+        <div><b>Chính sách</b>
+          <ul className="mt-2 mut space-y-1"><li><a href="#" className="nl">Chính sách bảo mật</a></li><li><a href="#" className="nl">Điều khoản sử dụng</a></li></ul></div>
+      </div>
+      <div className="text-center text-xs mut pb-8">© 2026 CVision AI. All rights reserved.</div>
+    </footer>
+    ${st==='loading'&&html`<${Loader} msg=${msg}/>`}
+    ${gate}
+  </div>`;
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App}/>`);
+</script>
+</body>
+</html>
