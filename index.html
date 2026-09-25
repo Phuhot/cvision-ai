@@ -44,6 +44,10 @@ mark.hk{background:linear-gradient(transparent 58%,rgba(59,130,246,.3) 0);color:
 @keyframes pr{from{opacity:.8;transform:scale(.9)}to{opacity:0;transform:scale(1.5)}}
 .wv{width:4px;height:26px;border-radius:4px;background:linear-gradient(#22d3ee,#3b82f6);animation:wv 1s ease-in-out infinite}
 @keyframes wv{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+.itv-in{animation:itvIn .45s cubic-bezier(.16,1,.3,1) both}
+@keyframes itvIn{from{opacity:0;transform:scale(.97) translateY(14px)}}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:dotb 1.1s ease-in-out infinite}
+@keyframes dotb{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
 </style>
 </head>
 <body>
@@ -80,14 +84,18 @@ const FAQ=[
 const PERKS=['Báo cáo chi tiết từng mục: kỹ năng, kinh nghiệm, học vấn','Đối chiếu CV với Job Description cụ thể','AI gợi ý viết lại từng dòng trong CV','Mock Interview không giới hạn, có chấm điểm câu trả lời','Xuất báo cáo PDF để lưu và chia sẻ'];
 const PRO=[
 {name:'Hoàng Minh Khang',role:'Marketing Executive',tags:['Digital Marketing','SEO','Google Ads','Content'],
+iv:'Chào bạn, dựa trên CV, tôi thấy bạn có kinh nghiệm chạy các chiến dịch Digital Marketing nhưng chưa ghi rõ số liệu. Bạn có thể chia sẻ chi tiết về một chiến dịch thành công nhất mà bạn từng thực hiện, và chỉ số ROI (Tỷ suất hoàn vốn) đạt được là bao nhiêu không?',
 sum:'Chào Khang, nhìn chung cấu trúc CV của bạn khá gọn gàng và hiện đại. Phần kinh nghiệm thể hiện tốt khả năng triển khai các chiến dịch *Digital Marketing*. Tuy nhiên, hệ thống nhận thấy bạn đang thiếu các chỉ số đo lường hiệu quả thực tế (như *tỷ lệ chuyển đổi, CPA, ROI*). Lời khuyên là hãy *lượng hóa* các kết quả này để tăng độ tin cậy với nhà tuyển dụng.',
 acts:['Bổ sung CPA, tỷ lệ chuyển đổi và ROI cho từng chiến dịch.','Lượng hóa kết quả ngay trong phần mô tả kinh nghiệm.','Giữ bố cục gọn gàng, đưa chiến dịch nổi bật nhất lên đầu.']},
 {name:'Lê Hải Yến',role:'Backend Developer',tags:['Python','Node.js','REST API','PostgreSQL'],
+iv:'Chào bạn, CV cho thấy bạn khá vững về Python và Node.js, nhưng phần dự án cá nhân chưa nêu rõ cấu trúc database hay số liệu hiệu năng. Bạn có thể kể về dự án bạn tâm đắc nhất: hệ thống xử lý được bao nhiêu request/giây, và bạn có link GitHub nào để chia sẻ thêm không?',
 sum:'CV của Yến làm nổi bật được tư duy logic và kỹ năng thực chiến với *Python, Node.js*. Dù vậy, phần mô tả dự án cá nhân vẫn còn khá mỏng. Hệ thống đề xuất bạn nên làm rõ cấu trúc *Database* đã sử dụng, bổ sung link *GitHub repository*, và thêm số liệu cụ thể về khả năng chịu tải (*performance*) của các API bạn từng viết.',
 acts:['Làm rõ cấu trúc Database đã sử dụng trong từng dự án.','Bổ sung link GitHub repository cho dự án cá nhân.','Thêm số liệu chịu tải (performance) của các API đã viết.']},
 {name:'Phạm Quốc Bảo',role:'Sales Management',tags:['B2B Sales','Đàm phán','CRM','Key Account'],
+iv:'Chào bạn, CV cho thấy bạn có kinh nghiệm B2B Sales và đàm phán khá tốt, nhưng chưa thể hiện rõ tỷ lệ đạt chỉ tiêu doanh số. Bạn có thể chia sẻ về deal lớn nhất từng chốt được, và tỷ lệ hoàn thành target (Quota Achievement) trung bình của bạn là bao nhiêu phần trăm không?',
 sum:'Kinh nghiệm trong ngành *B2B Sales* của Bảo là một điểm cộng rất lớn, đặc biệt ở kỹ năng đàm phán. Nhưng hiện tại, hệ thống *ATS* gặp khó khăn khi quét CV của bạn do format đang chia quá nhiều cột và vướng vài lỗi chính tả. AI khuyên bạn nên đổi sang một Template cấu trúc *1 cột* đơn giản, đồng thời tập trung làm nổi bật tỷ lệ đạt chỉ tiêu doanh số (*Quota Achievement*).',
 acts:['Chuyển sang template 1 cột đơn giản để ATS quét chính xác.','Rà soát và sửa các lỗi chính tả trong CV.','Làm nổi bật tỷ lệ đạt chỉ tiêu doanh số (Quota Achievement).']}];
+const FUP=['Cảm ơn bạn đã chia sẻ. Trong quá trình đó, bạn gặp khó khăn lớn nhất nào và đã xử lý ra sao?','Nếu được làm lại, bạn sẽ thay đổi điều gì để đạt kết quả tốt hơn?','Bạn nghĩ điều gì ở bản thân đã giúp bạn tạo ra kết quả đó?'];
 const MSGS=['Đang quét cấu trúc file...','Đang trích xuất từ khóa chuyên môn...','Đang đối chiếu với Job Description...','Đang tổng hợp báo cáo đánh giá...'];
 const Loader=({msg})=>html`<div className="fo fixed inset-0 z-[100] flex flex-col items-center justify-center px-6 text-center backdrop-blur-md" style=${{background:'rgba(8,16,32,.78)'}}>
   <div className="relative"><span className="pr"></span><span className="pr" style=${{animationDelay:'.8s'}}></span>
@@ -216,6 +224,80 @@ const Gate=({kind,mock,onClose,onLogin,onPro})=>{
     </div></div>`;
 };
 
+const Typewriter=({text,onDone})=>{
+  const [n,setN]=useState(0);
+  useEffect(()=>{
+    if(n>=text.length){onDone&&onDone();return}
+    const t=setTimeout(()=>setN(v=>v+1),14+Math.random()*20);
+    return()=>clearTimeout(t);
+  },[n]);
+  return html`<span>${text.slice(0,n)}${n<text.length&&html`<span className="inline-block w-[2px] h-[1em] align-middle bg-current ml-0.5 opacity-70 animate-pulse"></span>`}</span>`;
+};
+const Dots=()=>html`<div className="flex items-center gap-1.5 px-3 py-3">${[0,1,2].map(i=>html`<span key=${i} className="dot" style=${{animationDelay:(i*.15)+'s'}}></span>`)}</div>`;
+const mmss=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+
+const Interview=({res,onEnd})=>{
+  const [left,setLeft]=useState(900),[msgs,setMsgs]=useState([]),[thinking,setThinking]=useState(true);
+  const [val,setVal]=useState(''),[fi,setFi]=useState(0);
+  const endRef=useRef();
+  useEffect(()=>{const t=setInterval(()=>setLeft(v=>v>0?v-1:0),1000);return()=>clearInterval(t)},[]);
+  useEffect(()=>{const t=setTimeout(()=>{setMsgs([{role:'ai',text:res.p.iv,typed:false}]);setThinking(false)},1100);return()=>clearTimeout(t)},[]);
+  useEffect(()=>{endRef.current&&endRef.current.scrollIntoView({behavior:'smooth'})},[msgs,thinking]);
+  const markTyped=i=>setMsgs(m=>m.map((x,idx)=>idx===i?{...x,typed:true}:x));
+  const send=()=>{
+    const v=val.trim();if(!v)return;
+    setMsgs(m=>[...m,{role:'user',text:v,typed:true}]);setVal('');setThinking(true);
+    setTimeout(()=>{setMsgs(m=>[...m,{role:'ai',text:FUP[fi%FUP.length],typed:false}]);setFi(f=>f+1);setThinking(false)},1000+Math.random()*700);
+  };
+  return html`<div className="itv-in fixed inset-0 z-[80] flex flex-col" style=${{background:'var(--bg)',paddingTop:'env(safe-area-inset-top,0px)',paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
+    <div className="hdr border-b flex items-center justify-between px-5 h-[64px] shrink-0" style=${{borderColor:'var(--line)'}}>
+      <button onClick=${onEnd} className="flex items-center gap-2 text-sm font-semibold transition hover:text-blue-600"><${Ic} n="ArrowLeft" size=${18}/>Kết thúc phỏng vấn</button>
+      <span className="hidden sm:flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full soft text-blue-600"><${Ic} n="Sparkles" size=${13}/>Mock Interview</span>
+    </div>
+    <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-5 p-5 max-w-7xl mx-auto w-full">
+      <div className="lg:w-[40%] flex flex-col gap-4 shrink-0">
+        <div className="rounded-3xl bg-slate-900 aspect-video flex flex-col items-center justify-center relative overflow-hidden">
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 text-[11px] font-semibold text-slate-500"><span className="w-2 h-2 rounded-full bg-slate-600"></span>OFFLINE</div>
+          <div className="w-16 h-16 rounded-full bg-slate-800 grid place-items-center"><${Ic} n="VideoOff" size=${26} className="text-slate-500"/></div>
+          <p className="mt-3 text-sm font-medium text-slate-500">Camera đang tắt</p>
+        </div>
+        <div className="card rounded-3xl p-5">
+          <p className="text-xs font-bold mut uppercase tracking-wide">Đang phỏng vấn vị trí</p>
+          <p className="mt-1.5 text-lg font-extrabold">${res.p.role}</p>
+          <div className="mt-4 pt-4 border-t flex items-center justify-between" style=${{borderColor:'var(--line)'}}>
+            <span className="flex items-center gap-2 text-sm mut"><${Ic} n="Timer" size=${16}/>Thời gian phỏng vấn</span>
+            <span className=${'font-mono font-extrabold text-xl '+(left<60?'text-red-500':'')}>${mmss(left)}</span>
+          </div>
+        </div>
+      </div>
+      <div className="lg:w-[60%] flex-1 min-h-0 card rounded-3xl flex flex-col overflow-hidden">
+        <div className="flex items-center gap-3 px-5 h-[60px] border-b shrink-0" style=${{borderColor:'var(--line)'}}>
+          <span className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center"><${Ic} n="Bot" size=${18}/></span>
+          <div><p className="font-bold text-sm leading-tight">CVision AI Interviewer</p><p className="text-xs mut">Đang phỏng vấn thử</p></div>
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-5 space-y-4">
+          ${msgs.map((m,i)=>html`<div key=${i} className=${'fi flex '+(m.role==='user'?'justify-end':'justify-start')}>
+            ${m.role==='ai'&&html`<span className="w-8 h-8 shrink-0 mr-2.5 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center"><${Ic} n="Bot" size=${15}/></span>`}
+            <div className=${'max-w-[85%] rounded-2xl px-4 py-3 leading-relaxed text-[15px] '+(m.role==='user'?'bg-blue-600 text-white rounded-br-sm':'soft rounded-bl-sm')}>
+              ${m.typed?m.text:html`<${Typewriter} text=${m.text} onDone=${()=>markTyped(i)}/>`}
+            </div>
+          </div>`)}
+          ${thinking&&html`<div className="fi flex justify-start">
+            <span className="w-8 h-8 shrink-0 mr-2.5 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white grid place-items-center"><${Ic} n="Bot" size=${15}/></span>
+            <div className="soft rounded-2xl rounded-bl-sm"><${Dots}/></div>
+          </div>`}
+          <div ref=${endRef}></div>
+        </div>
+        <div className="border-t p-4 flex items-center gap-2.5 shrink-0" style=${{borderColor:'var(--line)'}}>
+          <input value=${val} onChange=${e=>setVal(e.target.value)} onKeyDown=${e=>e.key==='Enter'&&send()} placeholder="Nhập câu trả lời của bạn..." className="flex-1 rounded-full px-4 py-3 outline-none border soft focus:border-blue-500" style=${{borderColor:'var(--line)',color:'var(--fg)'}}/>
+          <button title="Ghi âm (sắp ra mắt)" className="card w-11 h-11 shrink-0 rounded-full grid place-items-center transition hover:text-blue-600 hover:border-blue-500"><${Ic} n="Mic" size=${18}/></button>
+          <button onClick=${send} className="w-11 h-11 shrink-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white grid place-items-center transition hover:scale-105 active:scale-95"><${Ic} n="Send" size=${17}/></button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+};
+
 const App=()=>{
   const [st,setSt]=useState('landing'),[file,setFile]=useState(null),[res,setRes]=useState(null),[msg,setMsg]=useState(0);
   const [hl,setHl]=useState(false),[err,setErr]=useState(''),[toast,setToast]=useState(''),[modal,setModal]=useState(null),[menu,setMenu]=useState(false),[user,setUser]=useState('');
@@ -234,11 +316,13 @@ const App=()=>{
   const reset=()=>{setSt('landing');setFile(null);setRes(null);window.scrollTo({top:0,behavior:'instant'})};
   const go=()=>{document.getElementById('upload').scrollIntoView({behavior:'smooth',block:'center'});setHl(true);setTimeout(()=>setHl(false),2200)};
   const flash=t=>{setToast(t);setTimeout(()=>setToast(''),2600)};
-  const mock=()=>setModal(user?'premium':'login');
-  const login=i=>{setUser(i);setModal(st==='result'?'premium':null)};
-  const gate=modal&&html`<${Gate} kind=${modal} mock=${st==='result'} onClose=${()=>setModal(null)} onLogin=${login} onPro=${()=>{setModal(null);flash('Cảm ơn bạn! Thanh toán Premium sẽ có trong bản chính thức ✨')}}/>`;
+  const login=i=>{setUser(i);setModal(null)};
+  const gate=modal&&html`<${Gate} kind=${modal} mock=${false} onClose=${()=>setModal(null)} onLogin=${login} onPro=${()=>{setModal(null);flash('Cảm ơn bạn! Thanh toán Premium sẽ có trong bản chính thức ✨')}}/>`;
+  const startInterview=()=>{setSt('interview');window.scrollTo({top:0,behavior:'instant'})};
+  const endInterview=()=>{setSt('result');window.scrollTo({top:0,behavior:'instant'})};
 
-  if(st==='result')return html`<${React.Fragment}><${Result} file=${file} res=${res} onReset=${reset} onMock=${mock} toast=${toast}/>${gate}<//>`;
+  if(st==='interview')return html`<${Interview} res=${res} onEnd=${endInterview}/>`;
+  if(st==='result')return html`<${React.Fragment}><${Result} file=${file} res=${res} onReset=${reset} onMock=${startInterview} toast=${toast}/>${gate}<//>`;
 
   return html`<div>
     <header className="hdr sticky z-50 backdrop-blur-md border-b" style=${{top:'env(safe-area-inset-top,0px)',borderColor:'var(--line)'}}>
